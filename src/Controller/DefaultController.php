@@ -83,8 +83,11 @@ class DefaultController extends AbstractController
      * buscará la acción coincidente con la ruta indicada
      * y mostrará la información asociada.
      */
-    public function indexJson(): JsonResponse {
-        return $this->json(self::PEOPLE);
+    public function indexJson(Request $request): JsonResponse {
+        // var_dump($request->query->has('id')); die();
+        $data = $request->query->has('id') ? self::PEOPLE[$request->query->get('id')] : self::PEOPLE; 
+
+        return $this->json($data);
     }
 
     /**
