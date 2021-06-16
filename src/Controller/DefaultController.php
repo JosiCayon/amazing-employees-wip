@@ -87,26 +87,36 @@ class DefaultController extends AbstractController
      * buscará la acción coincidente con la ruta indicada
      * y mostrará la información asociada.
      */
-    public function indexJson(EmployeeRepository $employeeRepository): JsonResponse {
+    public function indexJsonRequest(Request $request, EmployeeRepository $employeeRepository): JsonResponse {
         // var_dump($request->query->has('id')); die();
         // $data = $request->query->has('id') ? [][$request->query->get('id')] : []; 
-        $people = $employeeRepository->findAll();
-            return $this->json($people);
+        $data = $request->query->has('id') ?
+        $employeeRepository->find($request->query->get('id')) :
+        $employeeRepository->findAll();
+
+            return $this->json($data);
     }
+
+    // public function userJson(int $id, EmployeeRepository $employeeRepository): JsonResponse {
+    //     $data = $employeeRepository->find($id);
+    //     return $this->json($data);
+
 
     /**
      * @Route(
      *      "/default/{id}",
      *      name="default_show",
      *      requirements = {
-     *          "id": "[0-3]"
+     *          "id": "\d+"
      *      }
      * )
      */
-    public function show(int $id): Response {
+    public function show(int $id, EmployeeRepository $employeeRepository): Response {
+        $data = $employeeRepository->find($id);
+
         return $this->render('default/show.html.twig', [
             'id' => $id,
-            'person' => [][$id]
+            'person' => $data
         ]);
     }
 
