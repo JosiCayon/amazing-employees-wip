@@ -24,7 +24,7 @@ class DefaultController extends AbstractController
      * El primer parámetro de Route es la URL a la que queremos asociar la acción.
      * El segundo parámetro de Route es el nombre que queremos dar a la ruta.
      */
-    public function index(EmployeeRepository $employeeRepository): Response
+    public function index(Request $request,EmployeeRepository $employeeRepository): Response
     {
         // Una acción siempre debe devolver una respesta.
         // Por defecto deberá ser un objeto de la clase,
@@ -57,9 +57,14 @@ class DefaultController extends AbstractController
         // $repo = $orm ->getRepository(Employee::class); //Employee::class = ->App\Entity\Employee
         // $people = $repo->findAll();
 
+        $order = [];
 
+        if($request->query->has('orderBy')) {
+            $order[$request->query->get('orderBy')] = $request->query->get('orderDir', 'ASC');
+        }        
+        
         // Metodo 2: creando un parametro indicando el tipo (type hint)
-        $people = $employeeRepository->findAll();        
+        $people = $employeeRepository->findBy([], $order);        
         
         return $this->render('default/index.html.twig', [
            'people' => $people
@@ -111,6 +116,28 @@ class DefaultController extends AbstractController
      *      }
      * )
      */
+
+    // /**
+    //  * @Route(
+    //  *      "/default/{id}",
+    //  *      name="default_show",
+    //  *      requirements = {
+    //  *          "id": "\d+"
+    //  *      }
+    //  * )
+    //  */
+    // // La técnica ParamConverte inyecta directamente,
+    // // un objeto del tipo indicado como parámetro
+    // // intentando hacer un match del parámetro de la ruta
+    // // con alguna de las propiedades del objeto requerido.
+    // public function show(Employee $employee): Response {
+    //     return $this->render('default/show.html.twig', [
+    //         'person' => $employee
+    //     ]);
+    // }
+
+
+
     public function show(int $id, EmployeeRepository $employeeRepository): Response {
         $data = $employeeRepository->find($id);
 
