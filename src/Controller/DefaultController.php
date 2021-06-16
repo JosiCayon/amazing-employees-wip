@@ -26,6 +26,16 @@ class DefaultController extends AbstractController
      */
     public function index(Request $request,EmployeeRepository $employeeRepository): Response
     {
+        if($request->query->has('term')) {
+            $people = $employeeRepository->findByTerm($request->query->get('term'));
+
+            return $this->render('default/index.html.twig', [
+                'people' => $people
+             ]);
+     
+
+        }
+
         // Una acción siempre debe devolver una respesta.
         // Por defecto deberá ser un objeto de la clase,
         // Symfony\Component\HttpFoundation\Response
