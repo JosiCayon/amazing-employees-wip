@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Repository\EmployeeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -15,12 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
 // que pone a disposición nuestra multitud de características.
 class DefaultController extends AbstractController
 {
-    const PEOPLE = [
-        ['name' => 'Carlos', 'email' => 'carlos@correo.com', 'age' => 30, 'city' => 'Benalmádena'],
-        ['name' => 'Carmen', 'email' => 'carmen@correo.com', 'age' => 25, 'city' => 'Fuengirola'],
-        ['name' => 'Carmelo', 'email' => 'carmelo@correo.com', 'age' => 35, 'city' => 'Torremolinos'],
-        ['name' => 'Carolina', 'email' => 'carolina@correo.com', 'age' => 38, 'city' => 'Málaga'],        
-    ];
 
     /**
      * @Route("/default", name="default_index")
@@ -29,7 +24,7 @@ class DefaultController extends AbstractController
      * El primer parámetro de Route es la URL a la que queremos asociar la acción.
      * El segundo parámetro de Route es el nombre que queremos dar a la ruta.
      */
-    public function index(): Response
+    public function index(EmployeeRepository $employeeRepository): Response
     {
         // Una acción siempre debe devolver una respesta.
         // Por defecto deberá ser un objeto de la clase,
@@ -57,8 +52,17 @@ class DefaultController extends AbstractController
         // echo '<pre>files: '; var_dump($request->files); echo '</pre>'; // Equivalente a $_FILES, pero supervitaminado.
         // echo '<pre>idioma prefererido: '; var_dump($request->getPreferredLanguage()); echo '</pre>';
         
+        //Metodo 1: accedienco al repositorio a traves de AbstractController    
+        // $orm = $this->getDoctrine();
+        // $repo = $orm ->getRepository(Employee::class); //Employee::class = ->App\Entity\Employee
+        // $people = $repo->findAll();
+
+
+        // Metodo 2: creando un parametro indicando el tipo (type hint)
+        $people = $employeeRepository->findAll();        
+        
         return $this->render('default/index.html.twig', [
-           'people' => self::PEOPLE
+           'people' => $people
         ]);
     }
 
@@ -83,11 +87,11 @@ class DefaultController extends AbstractController
      * buscará la acción coincidente con la ruta indicada
      * y mostrará la información asociada.
      */
-    public function indexJson(Request $request): JsonResponse {
+    public function indexJson(EmployeeRepository $employeeRepository): JsonResponse {
         // var_dump($request->query->has('id')); die();
-        $data = $request->query->has('id') ? self::PEOPLE[$request->query->get('id')] : self::PEOPLE; 
-
-        return $this->json($data);
+        // $data = $request->query->has('id') ? [][$request->query->get('id')] : []; 
+        $people = $employeeRepository->findAll();
+            return $this->json($people);
     }
 
     /**
@@ -102,7 +106,7 @@ class DefaultController extends AbstractController
     public function show(int $id): Response {
         return $this->render('default/show.html.twig', [
             'id' => $id,
-            'person' => self::PEOPLE[$id]
+            'person' => [][$id]
         ]);
     }
 
