@@ -20,21 +20,35 @@ class Employee
 
     /**
      * @ORM\Column(type="string", length=128)
+     *
+     * @Assert\NotBlank
      */
-    private $name;
+    
+     private $name;
 
     /**
      * @ORM\Column(type="string", length=128)
+     * 
+     * "assert\Email(
+     *      message = "El correo {{ value }} no tiene un formato válido"
+     * )
      */
     private $email;
 
     /**
      * @ORM\Column(type="smallint")
+     * 
+     * @Assert\GreaterThanOrEqual (
+     *      value = 18,
+     *      message = " El empleado debe de ser mayor de edad"
+     * )
      */
     private $age;
 
     /**
      * @ORM\Column(type="string", length=128, nullable=true)
+     * 
+     * 
      */
     private $city;
 

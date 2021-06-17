@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/amazing-employees", name="api_employees_")
@@ -51,7 +52,8 @@ class ApiEmployeesController extends AbstractController
      */
     public function add(
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator
     ): Response {
         $data = $request->request;
         
@@ -62,6 +64,25 @@ class ApiEmployeesController extends AbstractController
         $employee->setAge($data->get('age'));
         $employee->setCity($data->get('city'));
         $employee->setPhone($data->get('phone'));
+
+        $errors = $validator->validate($employee);
+
+        if (count($errors) > 0) {
+            $sdataErrors = [];
+
+            /** @var \Symfony\Component\Validator\ConstraintViolation $error */
+            foreach ($errors as $error) {
+                $dataErrors[] = $error->getMessage();
+            }
+
+            return $this->json([
+                'status' => 'error',
+                'data' => [
+                    'errors' => $dataErrors
+                ],
+                Response::HTTP_BAD_REQUEST
+            ]);
+        }
 
         $entityManager->persist($employee);
 
