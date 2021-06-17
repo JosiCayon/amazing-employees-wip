@@ -52,8 +52,7 @@ class ApiEmployeesController extends AbstractController
     public function add(
         Request $request,
         EntityManagerInterface $entityManager
-         
-        ): Response {
+    ): Response {
         $data = $request->request;
         
         $employee = new Employee();
@@ -77,7 +76,7 @@ class ApiEmployeesController extends AbstractController
             Response::HTTP_CREATED,
             [
                 'Location' => $this->generateUrl(
-                    'api_employees_get', 
+                    'api_employees_get',
                     [
                         'id' => $employee->getId()
                     ]
@@ -96,14 +95,23 @@ class ApiEmployeesController extends AbstractController
      *      }
      * )
      */
-    public function update(int $id): Response
+    public function update(Employee $employee, Request $request, EntityManagerInterface $entityManager): Response
     {
-        return $this->json([
+        $data = $request->request;
+            $employee->setName($data->get('name'));
+            $employee->setEmail($data->get('email'));
+            $employee->setAge($data->get('age'));
+            $employee->setCity($data->get('city'));
+            $employee->setPhone($data->get('phone'));
+
+            $entityManager->persist($employee);
+            $entityManager->flush();
+       
+            return $this->json([
             'method' => 'PUT',
-            'description' => 'Actualiza un recurso empleado con id: '.$id.'.',
+            'description' => 'Actualiza un recurso empleado con id: .'
         ]);
     }
-
     /**
      * @Route(
      *      "/{id}",
@@ -115,15 +123,24 @@ class ApiEmployeesController extends AbstractController
      * )
      */
     public function remove(
-        Employee $employee,
-        EntityManagerInterface $entityManager
-        
-        ): Response
-    {
+        int $id,
+        EntityManagerInterface $entityManager,
+        EmployeeRepository $employeeRepository
+    ): Response {
+        $employee = $employeeRepository->find($id);
+
+        if (!$employee) {
+            return $this->json([
+                'message' => sprintf('No he encontrado el empledo con id.: %s', $id)
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        dump($employee);
+
+        // remove() prepara el sistema pero NO ejecuta la sentencia.
         $entityManager->remove($employee);
         $entityManager->flush();
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 }
-
